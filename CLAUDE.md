@@ -20,6 +20,10 @@ The worked example is the quack feed: `Quack` model → seed → repository → 
 
 Deliberately sparse — this file grows as the team learns what it expects from generated code. Add rules here when you find yourself repeating the same review feedback.
 
+### Search input is literal, and optional stays optional
+
+Escape `\`, `%`, and `_` before passing user text to Prisma `contains` so punctuation stays literal. Blank searches mean no filter. Adding an optional query parameter must preserve existing requests.
+
 ### UI controls come from the kit
 
 Need a control that isn't in `src/components/ui/`? Add it with `pnpm dlx shadcn@latest add <name>` — don't hand-roll one in a feature folder, even where a native input would do the job. One accessibility implementation to reason about beats a per-control judgement call.
