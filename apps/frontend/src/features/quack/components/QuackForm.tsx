@@ -16,13 +16,16 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
 
+import { quackMoodSchema } from "@/features/quack/api/quackSchemas"
 import { useAddQuack } from "@/features/quack/hooks/useAddQuack"
+import { MOOD_OPTIONS } from "@/features/quack/moods"
 
 // Mirrors the server-side DTO (MaxLength(280)) so the user is told before
 // the request is made — the server still validates independently.
 const MAX_LENGTH = 280
 
 const schema = z.object({
+  mood: quackMoodSchema.nullable(),
   text: z
     .string()
     .trim()
@@ -38,14 +41,15 @@ export function QuackForm({ className }: QuackFormProps) {
   const addQuack = useAddQuack()
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { text: "" },
+    defaultValues: { text: "", mood: null },
   })
 
   const text = useWatch({ control: form.control, name: "text" })
+  const mood = useWatch({ control: form.control, name: "mood" })
   const length = text?.length ?? 0
 
   const handleSubmit = (values: FormValues) => {
-    addQuack.mutate({ text: values.text }, { onSuccess: () => form.reset() })
+    addQuack.mutate(values, { onSuccess: () => form.reset() })
   }
 
   return (
@@ -79,6 +83,32 @@ export function QuackForm({ className }: QuackFormProps) {
             </FormItem>
           )}
         />
+
+        <fieldset
+          disabled={addQuack.isPending}
+          className="space-y-2"
+        >
+          <legend className="text-sm font-medium">Mood (optional)</legend>
+          <div className="flex flex-wrap gap-2">
+            {quackMoodSchema.options.map((value) => {
+              const { label, Icon } = MOOD_OPTIONS[value]
+              return (
+                <Button
+                  key={value}
+                  type="button"
+                  size="sm"
+                  variant={mood === value ? "secondary" : "outline"}
+                  aria-pressed={mood === value}
+                  onClick={() => form.setValue("mood", mood === value ? null : value)}
+                >
+                  <Icon aria-hidden="true" />
+                  {label}
+                </Button>
+              )
+            })}
+          </div>
+          <p className="text-sm text-muted-foreground">Select again to clear.</p>
+        </fieldset>
 
         <div className="flex items-center justify-end gap-3">
           <span

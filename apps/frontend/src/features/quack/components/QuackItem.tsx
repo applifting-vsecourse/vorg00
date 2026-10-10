@@ -4,11 +4,13 @@ import { formatDate } from "@/lib/date"
 import type { Quack } from "@/features/quack/api/quackSchemas"
 import { UsersName } from "@/features/quack/components/UsersName"
 import { UsersUserName } from "@/features/quack/components/UsersUserName"
+import { MOOD_OPTIONS } from "@/features/quack/moods"
 
 type QuackItemProps = { quack: Quack }
 
 export function QuackItem({ quack }: QuackItemProps) {
   const { name, username } = quack.user
+  const mood = quack.mood ? MOOD_OPTIONS[quack.mood] : null
 
   const initials = name
     .split(" ")
@@ -30,6 +32,15 @@ export function QuackItem({ quack }: QuackItemProps) {
           </span>
           <span className="text-xs text-muted-foreground">·</span>
           <time className="text-xs text-muted-foreground">{formatDate(quack.createdAt)}</time>
+          {mood ? (
+            <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+              <mood.Icon
+                className="size-4"
+                aria-hidden="true"
+              />
+              {mood.label}
+            </span>
+          ) : null}
         </div>
         <p className="text-sm break-words whitespace-pre-line">{quack.text}</p>
       </div>
