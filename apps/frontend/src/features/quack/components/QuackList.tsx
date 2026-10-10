@@ -11,14 +11,30 @@ type QuackListProps = {
   isLoading?: boolean
   error?: Error
   onReload?: () => void
+  search?: string
+  onClear?: () => void
 }
 
-export function QuackList({ quacks, isLoading, error, onReload }: QuackListProps) {
+export function QuackList({
+  quacks,
+  isLoading,
+  error,
+  onReload,
+  search = "",
+  onClear,
+}: QuackListProps) {
   return (
     <div className="flex flex-col">
       {isLoading && quacks.length === 0 ? (
-        <div className="flex items-center justify-center py-8 text-muted-foreground">
-          <Loader2 className="size-5 animate-spin" />
+        <div
+          role="status"
+          className="flex items-center justify-center gap-2 py-8 text-muted-foreground"
+        >
+          <Loader2
+            className="size-5 animate-spin"
+            aria-hidden="true"
+          />
+          {search ? "Searching…" : "Loading quacks…"}
         </div>
       ) : null}
 
@@ -45,17 +61,31 @@ export function QuackList({ quacks, isLoading, error, onReload }: QuackListProps
       ) : null}
 
       {!isLoading && !error && quacks.length === 0 ? (
-        <p className="py-8 text-center text-sm text-muted-foreground">
-          No quacks yet. Post the first one.
-        </p>
+        <div
+          role="status"
+          className="space-y-3 py-8 text-center text-sm text-muted-foreground"
+        >
+          <p>{search ? `No quacks match "${search}".` : "No quacks yet. Post the first one."}</p>
+          {search && onClear ? (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onClear}
+            >
+              Clear search
+            </Button>
+          ) : null}
+        </div>
       ) : null}
 
-      {quacks.map((quack) => (
-        <QuackItem
-          key={quack.id}
-          quack={quack}
-        />
-      ))}
+      {!error && !isLoading
+        ? quacks.map((quack) => (
+            <QuackItem
+              key={quack.id}
+              quack={quack}
+            />
+          ))
+        : null}
     </div>
   )
 }
