@@ -22,6 +22,9 @@ export class QuackResponseDto {
   @ApiProperty({ enum: QUACK_MOODS, nullable: true })
   mood!: QuackMood | null;
 
+  @ApiProperty({ nullable: true, type: Object })
+  poll!: Quack['poll'];
+
   @ApiProperty()
   userId!: string;
 
@@ -41,6 +44,7 @@ export class QuackResponseDto {
       id: quack.id,
       text: quack.text,
       mood: quack.mood ?? null,
+      poll: quack.poll ?? null,
       userId: quack.userId,
       createdAt: quack.createdAt,
       user: {
