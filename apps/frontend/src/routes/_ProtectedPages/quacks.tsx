@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query"
 import { createFileRoute } from "@tanstack/react-router"
 
 import { Seo } from "@/components/Seo"
+import { Button } from "@/components/ui/button"
 
 import { QuackFeed } from "@/features/quack/components/QuackFeed"
 import { QuackForm } from "@/features/quack/components/QuackForm"
@@ -21,6 +22,19 @@ function QuacksPage() {
 
         {profile.isPending ? (
           <p role="status">Loading post preferences…</p>
+        ) : profile.error ? (
+          <div
+            role="alert"
+            className="mb-4"
+          >
+            <p>Could not load post preferences. {profile.error.message}</p>
+            <Button
+              variant="outline"
+              onClick={() => void profile.refetch()}
+            >
+              Retry
+            </Button>
+          </div>
         ) : (
           <QuackForm
             className="mb-4"

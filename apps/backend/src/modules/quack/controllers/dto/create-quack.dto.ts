@@ -21,6 +21,7 @@ export class CreateQuackDto {
     maxLength: 280,
   })
   @IsString()
+  @Transform(({ value }: { value: unknown }) => typeof value === 'string' ? value.trim() : value)
   @IsNotEmpty()
   @MaxLength(280)
   text!: string;
