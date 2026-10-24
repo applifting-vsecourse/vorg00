@@ -9,6 +9,7 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Query,
   UseGuards,
   UsePipes,
   ValidationPipe,
@@ -16,11 +17,13 @@ import {
 import {
   ApiCookieAuth,
   ApiOperation,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
 import { CreateQuackDto } from './dto/create-quack.dto';
 import { QuackResponseDto } from './dto/quack.response.dto';
+import { SearchQueryPipe } from './search-query.pipe';
 
 @ApiTags('quacks')
 @Controller('quacks')
@@ -37,11 +40,17 @@ export class QuacksController {
   constructor(private readonly quacksService: QuacksService) {}
 
   @Get()
-  @ApiOperation({ summary: 'List all quacks' })
+  @ApiOperation({ summary: 'List quacks, optionally searching text or author' })
+  @ApiQuery({ name: 'q', required: false, type: String, maxLength: 100 })
+  @ApiResponse({ status: 400, description: 'Invalid search query' })
   @ApiResponse({ status: 200, type: [QuackResponseDto] })
   @ApiResponse({ status: 401, description: 'Not signed in' })
-  async list(): Promise<QuackResponseDto[]> {
-    const quacks = await this.quacksService.getQuacks();
+  async list(
+    // A union prevents the controller-wide pipe from coercing repeated q values
+    // to a string before SearchQueryPipe can reject their array shape.
+    @Query('q', SearchQueryPipe) search?: string | null,
+  ): Promise<QuackResponseDto[]> {
+    const quacks = await this.quacksService.getQuacks(search ?? undefined);
     return quacks.map(QuackResponseDto.fromDomain);
   }
 
