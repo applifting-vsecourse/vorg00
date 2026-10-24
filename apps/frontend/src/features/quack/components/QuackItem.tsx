@@ -8,9 +8,9 @@ import { UsersName } from "@/features/quack/components/UsersName"
 import { UsersUserName } from "@/features/quack/components/UsersUserName"
 import { MOOD_OPTIONS } from "@/features/quack/moods"
 
-type QuackItemProps = { quack: Quack; currentUserId?: string }
+type QuackItemProps = { quack: Quack; currentUserId?: string; isAdmin?: boolean }
 
-export function QuackItem({ quack, currentUserId }: QuackItemProps) {
+export function QuackItem({ quack, currentUserId, isAdmin = false }: QuackItemProps) {
   const { name, username } = quack.user
   const mood = quack.mood ? MOOD_OPTIONS[quack.mood] : null
 
@@ -32,7 +32,7 @@ export function QuackItem({ quack, currentUserId }: QuackItemProps) {
           <span>
             <UsersName name={name} /> <UsersUserName username={username} />
           </span>
-          {currentUserId === quack.userId ? <DeleteQuack quackId={quack.id} /> : null}
+          {currentUserId === quack.userId || isAdmin ? <DeleteQuack quackId={quack.id} /> : null}
           <span className="text-xs text-muted-foreground">·</span>
           <time className="text-xs text-muted-foreground">{formatDate(quack.createdAt)}</time>
           {mood ? (
