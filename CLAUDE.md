@@ -18,6 +18,10 @@ The worked example is the quack feed: `Quack` model → seed → repository → 
 
 ## Conventions
 
+### Counts and permissions are server responsibilities
+
+Enforce one vote per poll and account with a database constraint, and change it atomically. Hide pre-vote results in the API response as well as the UI. Optimistic feedback must roll back visibly when saving fails.
+
 ### Saving a profile refreshes its readers
 
 After changing profile data, refresh the session and feed caches as well as the form. Keep rejected drafts intact, show a username conflict next to its field, and let the database enforce uniqueness.

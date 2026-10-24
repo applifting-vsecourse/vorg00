@@ -11,6 +11,11 @@ export type Quack = {
   id: string;
   text: string;
   mood?: QuackMood | null;
+  poll?: {
+    options: { id: string; label: string; count: number | null }[];
+    selectedOptionId: string | null;
+    totalVotes: number | null;
+  } | null;
   userId: string;
   createdAt: Date;
   updatedAt: Date;

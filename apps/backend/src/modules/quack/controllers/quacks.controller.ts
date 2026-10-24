@@ -8,7 +8,9 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Param,
   Post,
+  Put,
   Query,
   UseGuards,
   UsePipes,
@@ -23,6 +25,7 @@ import {
 } from '@nestjs/swagger';
 import { CreateQuackDto } from './dto/create-quack.dto';
 import { QuackResponseDto } from './dto/quack.response.dto';
+import { VoteDto } from './dto/vote.dto';
 import { SearchQueryPipe } from './search-query.pipe';
 
 @ApiTags('quacks')
@@ -46,11 +49,15 @@ export class QuacksController {
   @ApiResponse({ status: 200, type: [QuackResponseDto] })
   @ApiResponse({ status: 401, description: 'Not signed in' })
   async list(
+    @User() user: Identity,
     // A union prevents the controller-wide pipe from coercing repeated q values
     // to a string before SearchQueryPipe can reject their array shape.
     @Query('q', SearchQueryPipe) search?: string | null,
   ): Promise<QuackResponseDto[]> {
-    const quacks = await this.quacksService.getQuacks(search ?? undefined);
+    const quacks = await this.quacksService.getQuacks(
+      search ?? undefined,
+      user.id,
+    );
     return quacks.map(QuackResponseDto.fromDomain);
   }
 
@@ -66,7 +73,20 @@ export class QuacksController {
     const quack = await this.quacksService.createQuack(user, {
       text: body.text,
       mood: body.mood,
+      pollOptions: body.pollOptions,
     });
     return QuackResponseDto.fromDomain(quack);
+  }
+
+  @Put(':id/vote')
+  @ApiOperation({ summary: 'Cast or change your vote' })
+  async vote(
+    @User() user: Identity,
+    @Param('id') id: string,
+    @Body() body: VoteDto,
+  ): Promise<QuackResponseDto> {
+    return QuackResponseDto.fromDomain(
+      await this.quacksService.vote(user, id, body.optionId),
+    );
   }
 }
