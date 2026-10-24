@@ -38,19 +38,21 @@ const schema = z.object({
     )
     .max(4)
     .superRefine((options, ctx) => {
-      if (options.length === 1)
-        {ctx.addIssue({ code: "custom", path: [0, "label"], message: "Add at least two answers" })}
+      if (options.length === 1) {
+        ctx.addIssue({ code: "custom", path: [0, "label"], message: "Add at least two answers" })
+      }
       options.forEach((option, index) => {
         if (
           options
             .slice(0, index)
             .some((other) => other.label.toLowerCase() === option.label.toLowerCase())
-        )
-          {ctx.addIssue({
+        ) {
+          ctx.addIssue({
             code: "custom",
             path: [index, "label"],
             message: "Use a different answer",
-          })}
+          })
+        }
       })
     }),
   mood: quackMoodSchema.nullable(),
