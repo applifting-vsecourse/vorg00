@@ -18,7 +18,15 @@ The worked example is the quack feed: `Quack` model → seed → repository → 
 
 ## Conventions
 
+### Saving a profile refreshes its readers
+
+After changing profile data, refresh the session and feed caches as well as the form. Keep rejected drafts intact, show a username conflict next to its field, and let the database enforce uniqueness.
+
 Deliberately sparse — this file grows as the team learns what it expects from generated code. Add rules here when you find yourself repeating the same review feedback.
+
+### Search input is literal, and optional stays optional
+
+Escape `\`, `%`, and `_` before passing user text to Prisma `contains` so punctuation stays literal. Blank searches mean no filter. Adding an optional query parameter must preserve existing requests.
 
 ### UI controls come from the kit
 
