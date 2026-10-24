@@ -46,8 +46,12 @@ export class QuacksService {
   async delete(user: Identity, quackId: string): Promise<void> {
     const quack = await this.quackRepository.findById(quackId);
     if (!quack) throw new NotFoundException('Quack not found');
-    if (quack.userId !== user.id)
-      throw new ForbiddenException('You can only delete your own quacks');
+    const isOwner = quack.userId === user.id;
+    const isAdmin = user.role === 'admin';
+    if (!isOwner && !isAdmin)
+      throw new ForbiddenException(
+        'Only the author or an admin can delete this quack',
+      );
     await this.quackRepository.deleteById(quackId);
   }
 }

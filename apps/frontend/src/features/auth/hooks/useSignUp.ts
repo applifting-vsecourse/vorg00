@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { authKeys } from "@/lib/auth-keys"
 
 import { authClient } from "@/features/auth/lib/auth-client"
+import { clearAccountQueries } from "@/features/auth/lib/clearAccountQueries"
 
 export type SignUpInput = {
   name: string
@@ -27,6 +28,7 @@ export function useSignUp() {
       if (error) throw new Error(error.message ?? "Sign up failed")
     },
     onSuccess: async () => {
+      await clearAccountQueries(queryClient)
       await queryClient.invalidateQueries({ queryKey: authKeys.session(), refetchType: "all" })
     },
   })

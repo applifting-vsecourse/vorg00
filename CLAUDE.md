@@ -18,6 +18,12 @@ The worked example is the quack feed: `Quack` model → seed → repository → 
 
 ## Conventions
 
+### Moderation trusts the session role
+
+Authorize deletion in the service with owner OR admin, using the authenticated session. Pass isAdmin from the route into feature components; hiding a button is only a convenience. Keep a non-owner API check that expects 403, and prove it fails when the server permission check is removed.
+
+Clear account-specific query data when signing in, signing up or signing out, so the next account cannot inherit cached profile data, Mine lists or poll results.
+
 ### Ownership comes from the session
 
 Check ownership in the service before deleting. The route passes session identity to the UI for convenience, but the server never trusts a userId supplied by the caller. Include feed filters in query keys and refresh every affected list after a mutation.

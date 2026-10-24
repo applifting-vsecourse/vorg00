@@ -46,6 +46,7 @@ function QuacksPage() {
 
         <QuackFeed
           currentUserId={user?.id}
+          isAdmin={user?.role === "admin"}
           onCompose={() =>
             document.getElementById("new-quack-form")?.querySelector("textarea")?.focus()
           }

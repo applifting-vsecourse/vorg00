@@ -11,9 +11,11 @@ import { QuackList } from "@/features/quack/components/QuackList"
 
 export function QuackFeed({
   currentUserId,
+  isAdmin = false,
   onCompose,
 }: {
   currentUserId?: string
+  isAdmin?: boolean
   onCompose?: () => void
 }) {
   const [scope, setScope] = useState<"all" | "mine">("all")
@@ -80,6 +82,7 @@ export function QuackFeed({
       <TabsContent value={scope}>
         <QuackList
           currentUserId={currentUserId}
+          isAdmin={isAdmin}
           isMine={scope === "mine"}
           onCompose={onCompose}
           search={trimmed}

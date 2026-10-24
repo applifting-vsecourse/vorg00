@@ -96,9 +96,9 @@ export class QuacksController {
   }
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Delete your own quack' })
+  @ApiOperation({ summary: 'Delete a quack as its author or an admin' })
   @ApiResponse({ status: 204, description: 'Deleted' })
-  @ApiResponse({ status: 403, description: 'Not the author' })
+  @ApiResponse({ status: 403, description: 'Neither the author nor an admin' })
   @ApiResponse({ status: 401, description: 'Not signed in' })
   async delete(@User() user: Identity, @Param('id') id: string): Promise<void> {
     await this.quacksService.delete(user, id);

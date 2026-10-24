@@ -8,6 +8,7 @@ import { QuackItem } from "@/features/quack/components/QuackItem"
 
 type QuackListProps = {
   currentUserId?: string
+  isAdmin?: boolean
   isMine?: boolean
   onCompose?: () => void
   quacks: Quack[]
@@ -20,6 +21,7 @@ type QuackListProps = {
 
 export function QuackList({
   currentUserId,
+  isAdmin = false,
   isMine = false,
   onCompose,
   quacks,
@@ -104,6 +106,7 @@ export function QuackList({
               key={quack.id}
               quack={quack}
               currentUserId={currentUserId}
+              isAdmin={isAdmin}
             />
           ))
         : null}
