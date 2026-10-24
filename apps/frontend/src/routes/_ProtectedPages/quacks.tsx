@@ -4,6 +4,7 @@ import { createFileRoute } from "@tanstack/react-router"
 import { Seo } from "@/components/Seo"
 import { Button } from "@/components/ui/button"
 
+import { useSession } from "@/features/auth/hooks/useSession"
 import { QuackFeed } from "@/features/quack/components/QuackFeed"
 import { QuackForm } from "@/features/quack/components/QuackForm"
 import { profileQueryOptions } from "@/features/settings/api/profile"
@@ -13,6 +14,7 @@ export const Route = createFileRoute("/_ProtectedPages/quacks")({
 })
 
 function QuacksPage() {
+  const { user } = useSession()
   const profile = useQuery(profileQueryOptions())
   return (
     <>
@@ -42,7 +44,12 @@ function QuacksPage() {
           />
         )}
 
-        <QuackFeed />
+        <QuackFeed
+          currentUserId={user?.id}
+          onCompose={() =>
+            document.getElementById("new-quack-form")?.querySelector("textarea")?.focus()
+          }
+        />
       </section>
     </>
   )

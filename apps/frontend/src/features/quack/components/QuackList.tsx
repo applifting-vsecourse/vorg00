@@ -7,6 +7,9 @@ import type { Quack } from "@/features/quack/api/quackSchemas"
 import { QuackItem } from "@/features/quack/components/QuackItem"
 
 type QuackListProps = {
+  currentUserId?: string
+  isMine?: boolean
+  onCompose?: () => void
   quacks: Quack[]
   isLoading?: boolean
   error?: Error
@@ -16,6 +19,9 @@ type QuackListProps = {
 }
 
 export function QuackList({
+  currentUserId,
+  isMine = false,
+  onCompose,
   quacks,
   isLoading,
   error,
@@ -65,7 +71,21 @@ export function QuackList({
           role="status"
           className="space-y-3 py-8 text-center text-sm text-muted-foreground"
         >
-          <p>{search ? `No quacks match "${search}".` : "No quacks yet. Post the first one."}</p>
+          <p>
+            {search
+              ? `No quacks match "${search}".`
+              : isMine
+                ? "You have not posted any quacks yet."
+                : "No quacks yet. Post the first one."}
+          </p>
+          {isMine && !search && onCompose ? (
+            <Button
+              variant="outline"
+              onClick={onCompose}
+            >
+              Write your first quack
+            </Button>
+          ) : null}
           {search && onClear ? (
             <Button
               variant="outline"
@@ -83,6 +103,7 @@ export function QuackList({
             <QuackItem
               key={quack.id}
               quack={quack}
+              currentUserId={currentUserId}
             />
           ))
         : null}

@@ -74,13 +74,18 @@ const mapPrismaQuackToDomain = (
 export class QuackRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getQuacks(search?: string, viewerId?: string): Promise<Quack[]> {
+  async getQuacks(
+    search?: string,
+    viewerId?: string,
+    authorId?: string,
+  ): Promise<Quack[]> {
     // Prisma's contains uses LIKE patterns; user punctuation must stay literal.
     const contains = search?.replace(/[\\%_]/g, '\\$&');
     const quacks = await this.prisma.quack.findMany({
-      ...(contains
-        ? {
-            where: {
+      where: {
+        ...(authorId ? { userId: authorId } : {}),
+        ...(contains
+          ? {
               OR: [
                 { text: { contains, mode: 'insensitive' as const } },
                 { user: { name: { contains, mode: 'insensitive' as const } } },
@@ -90,9 +95,9 @@ export class QuackRepository {
                   },
                 },
               ],
-            },
-          }
-        : {}),
+            }
+          : {}),
+      },
       include: includeForViewer(viewerId),
       orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
     });
@@ -151,5 +156,13 @@ export class QuackRepository {
     });
     if (!quack) throw new NotFoundException('Poll not found');
     return mapPrismaQuackToDomain(quack);
+  }
+  async findById(id: string): Promise<Quack | null> {
+    const quack = await this.prisma.quack.findUnique({ where: { id } });
+    return quack ? mapPrismaQuackToDomain(quack) : null;
+  }
+
+  async deleteById(id: string): Promise<void> {
+    await this.prisma.quack.deleteMany({ where: { id } });
   }
 }
