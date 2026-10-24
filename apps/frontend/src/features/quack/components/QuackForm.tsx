@@ -95,6 +95,7 @@ export function QuackForm({ className, defaultMood = null }: QuackFormProps) {
   return (
     <Form {...form}>
       <form
+        id="new-quack-form"
         noValidate
         onSubmit={form.handleSubmit(handleSubmit)}
         className={cn("space-y-3", className)}

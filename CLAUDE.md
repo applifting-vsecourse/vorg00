@@ -18,6 +18,10 @@ The worked example is the quack feed: `Quack` model → seed → repository → 
 
 ## Conventions
 
+### Ownership comes from the session
+
+Check ownership in the service before deleting. The route passes session identity to the UI for convenience, but the server never trusts a userId supplied by the caller. Include feed filters in query keys and refresh every affected list after a mutation.
+
 ### Counts and permissions are server responsibilities
 
 Enforce one vote per poll and account with a database constraint, and change it atomically. Hide pre-vote results in the API response as well as the UI. Optimistic feedback must roll back visibly when saving fails.

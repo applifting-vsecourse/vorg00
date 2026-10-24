@@ -5,6 +5,7 @@ import { AuthenticatedUserGuard } from '@/shared/auth/guards/authenticated-user.
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -26,6 +27,7 @@ import {
 import { CreateQuackDto } from './dto/create-quack.dto';
 import { QuackResponseDto } from './dto/quack.response.dto';
 import { VoteDto } from './dto/vote.dto';
+import { FeedScopePipe } from './feed-scope.pipe';
 import { SearchQueryPipe } from './search-query.pipe';
 
 @ApiTags('quacks')
@@ -45,6 +47,7 @@ export class QuacksController {
   @Get()
   @ApiOperation({ summary: 'List quacks, optionally searching text or author' })
   @ApiQuery({ name: 'q', required: false, type: String, maxLength: 100 })
+  @ApiQuery({ name: 'scope', required: false, enum: ['all', 'mine'] })
   @ApiResponse({ status: 400, description: 'Invalid search query' })
   @ApiResponse({ status: 200, type: [QuackResponseDto] })
   @ApiResponse({ status: 401, description: 'Not signed in' })
@@ -53,10 +56,12 @@ export class QuacksController {
     // A union prevents the controller-wide pipe from coercing repeated q values
     // to a string before SearchQueryPipe can reject their array shape.
     @Query('q', SearchQueryPipe) search?: string | null,
+    @Query('scope', FeedScopePipe) scope?: 'all' | 'mine' | null,
   ): Promise<QuackResponseDto[]> {
     const quacks = await this.quacksService.getQuacks(
       search ?? undefined,
       user.id,
+      scope ?? 'all',
     );
     return quacks.map(QuackResponseDto.fromDomain);
   }
@@ -88,5 +93,14 @@ export class QuacksController {
     return QuackResponseDto.fromDomain(
       await this.quacksService.vote(user, id, body.optionId),
     );
+  }
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete your own quack' })
+  @ApiResponse({ status: 204, description: 'Deleted' })
+  @ApiResponse({ status: 403, description: 'Not the author' })
+  @ApiResponse({ status: 401, description: 'Not signed in' })
+  async delete(@User() user: Identity, @Param('id') id: string): Promise<void> {
+    await this.quacksService.delete(user, id);
   }
 }

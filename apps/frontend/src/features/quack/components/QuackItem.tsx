@@ -2,14 +2,15 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { formatDate } from "@/lib/date"
 
 import type { Quack } from "@/features/quack/api/quackSchemas"
+import { DeleteQuack } from "@/features/quack/components/DeleteQuack"
 import { PollCard } from "@/features/quack/components/PollCard"
 import { UsersName } from "@/features/quack/components/UsersName"
 import { UsersUserName } from "@/features/quack/components/UsersUserName"
 import { MOOD_OPTIONS } from "@/features/quack/moods"
 
-type QuackItemProps = { quack: Quack }
+type QuackItemProps = { quack: Quack; currentUserId?: string }
 
-export function QuackItem({ quack }: QuackItemProps) {
+export function QuackItem({ quack, currentUserId }: QuackItemProps) {
   const { name, username } = quack.user
   const mood = quack.mood ? MOOD_OPTIONS[quack.mood] : null
 
@@ -31,6 +32,7 @@ export function QuackItem({ quack }: QuackItemProps) {
           <span>
             <UsersName name={name} /> <UsersUserName username={username} />
           </span>
+          {currentUserId === quack.userId ? <DeleteQuack quackId={quack.id} /> : null}
           <span className="text-xs text-muted-foreground">·</span>
           <time className="text-xs text-muted-foreground">{formatDate(quack.createdAt)}</time>
           {mood ? (
