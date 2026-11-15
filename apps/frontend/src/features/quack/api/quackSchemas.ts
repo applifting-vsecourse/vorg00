@@ -20,12 +20,17 @@ export const quackUserSchema = z.object({
 
 export const quackSchema = z.object({
   id: z.string(),
-  text: z.string(),
+  text: z.string().nullable(),
+  parentId: z.string().nullable(),
+  deleted: z.boolean(),
+  replyCount: z.number().int().nonnegative(),
+  canReply: z.boolean(),
+  canDelete: z.boolean(),
   mood: quackMoodSchema.nullish(),
   poll: pollSchema.nullish(),
-  userId: z.string(),
-  createdAt: z.coerce.date(),
-  user: quackUserSchema,
+  userId: z.string().nullable(),
+  createdAt: z.coerce.date().nullable(),
+  user: quackUserSchema.nullable(),
 })
 
 export const quacksSchema = z.array(quackSchema)

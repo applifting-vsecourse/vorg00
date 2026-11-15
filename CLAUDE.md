@@ -53,3 +53,5 @@ The CLI puts `shadow-xs`/`shadow-sm` on inputs, textareas and cards. [`DESIGN.md
 Assume the dev servers are up. If something is listening on the app's ports, that is this application: use it. Don't start a second instance, don't restart it, don't run `pnpm dev`.
 
 Don't reach for the browser to check your own work. Tests and type-checks are the evidence; open the running app when asked to, not on your own initiative.
+
+Before changing the data model or the structure of the app, check the ADR index in [`docs/adr/README.md`](docs/adr/README.md).

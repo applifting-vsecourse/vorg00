@@ -14,7 +14,7 @@ import {
 import { api } from "@/lib/api-client"
 
 import { quackKeys } from "@/features/quack/api/quackKeys"
-import type { Quack } from "@/features/quack/api/quackSchemas"
+import { scrubDeletedQuack } from "@/features/quack/api/scrubDeletedQuack"
 
 export function DeleteQuack({ quackId }: { quackId: string }) {
   const [isOpen, setIsOpen] = useState(false)
@@ -25,8 +25,9 @@ export function DeleteQuack({ quackId }: { quackId: string }) {
     },
     onSuccess: async () => {
       setIsOpen(false)
-      queryClient.setQueriesData<Quack[]>({ queryKey: quackKeys.all() }, (data) =>
-        data?.filter((quack) => quack.id !== quackId),
+      await queryClient.cancelQueries({ queryKey: quackKeys.all() })
+      queryClient.setQueriesData({ queryKey: quackKeys.all() }, (data: unknown) =>
+        scrubDeletedQuack(data, quackId),
       )
       await queryClient.invalidateQueries({ queryKey: quackKeys.all() })
     },
@@ -55,7 +56,8 @@ export function DeleteQuack({ quackId }: { quackId: string }) {
         <DialogHeader>
           <DialogTitle>Delete this quack?</DialogTitle>
           <DialogDescription>
-            This permanently removes the quack and any poll and votes attached to it.
+            This permanently erases the text and any poll and votes. Replies survive under an
+            anonymous placeholder. This cannot be undone.
           </DialogDescription>
         </DialogHeader>
         {remove.error ? (

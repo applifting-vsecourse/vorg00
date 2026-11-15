@@ -1,13 +1,28 @@
 // Example component test — the pattern to copy for your own components.
-import { render, screen } from "@testing-library/react"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { render as baseRender, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { describe, expect, it, vi } from "vitest"
 
 import type { Quack } from "@/features/quack/api/quackSchemas"
 import { QuackList } from "@/features/quack/components/QuackList"
 
+const render = (ui: React.ReactNode) =>
+  baseRender(
+    <QueryClientProvider
+      client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+    >
+      {ui}
+    </QueryClientProvider>,
+  )
+
 const quack = (overrides: Partial<Quack> = {}): Quack => ({
   id: "q1",
+  parentId: null,
+  deleted: false,
+  replyCount: 0,
+  canReply: true,
+  canDelete: false,
   text: "quack quack",
   userId: "u1",
   createdAt: new Date("2026-01-01T12:00:00Z"),

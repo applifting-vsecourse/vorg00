@@ -3,10 +3,12 @@ import { User } from '@/shared/auth/decorators/user.decorator';
 import { Identity } from '@/shared/auth/domain/identity';
 import { AuthenticatedUserGuard } from '@/shared/auth/guards/authenticated-user.guard';
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
   Get,
+  Header,
   HttpCode,
   HttpStatus,
   Param,
@@ -45,6 +47,7 @@ export class QuacksController {
   constructor(private readonly quacksService: QuacksService) {}
 
   @Get()
+  @Header('Cache-Control', 'private, no-store')
   @ApiOperation({ summary: 'List quacks, optionally searching text or author' })
   @ApiQuery({ name: 'q', required: false, type: String, maxLength: 100 })
   @ApiQuery({ name: 'scope', required: false, enum: ['all', 'mine'] })
@@ -63,7 +66,43 @@ export class QuacksController {
       user.id,
       scope ?? 'all',
     );
-    return quacks.map(QuackResponseDto.fromDomain);
+    return quacks.map((q) => QuackResponseDto.fromDomain(q, user));
+  }
+
+  @Get(':id')
+  @Header('Cache-Control', 'private, no-store')
+  async get(
+    @Param('id') id: string,
+    @User() user: Identity,
+  ): Promise<QuackResponseDto> {
+    return QuackResponseDto.fromDomain(
+      await this.quacksService.getQuack(id, user),
+      user,
+    );
+  }
+
+  @Get(':id/replies')
+  @Header('Cache-Control', 'private, no-store')
+  async replies(
+    @Param('id') id: string,
+    @User() user: Identity,
+    @Query('cursor') cursor?: string | null,
+  ): Promise<{ items: QuackResponseDto[]; nextCursor: string | null }> {
+    if (
+      cursor !== undefined &&
+      cursor !== null &&
+      (typeof cursor !== 'string' || cursor.length > 128 || !cursor)
+    )
+      throw new BadRequestException('Invalid reply cursor.');
+    const page = await this.quacksService.getReplies(
+      id,
+      user,
+      cursor ?? undefined,
+    );
+    return {
+      ...page,
+      items: page.items.map((q) => QuackResponseDto.fromDomain(q, user)),
+    };
   }
 
   @Post()
@@ -77,10 +116,11 @@ export class QuacksController {
   ): Promise<QuackResponseDto> {
     const quack = await this.quacksService.createQuack(user, {
       text: body.text,
+      parentId: body.parentId,
       mood: body.mood,
       pollOptions: body.pollOptions,
     });
-    return QuackResponseDto.fromDomain(quack);
+    return QuackResponseDto.fromDomain(quack, user);
   }
 
   @Put(':id/vote')
@@ -92,6 +132,7 @@ export class QuacksController {
   ): Promise<QuackResponseDto> {
     return QuackResponseDto.fromDomain(
       await this.quacksService.vote(user, id, body.optionId),
+      user,
     );
   }
   @Delete(':id')
