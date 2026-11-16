@@ -4,17 +4,14 @@ import { Button } from "@/components/ui/button"
 import { api } from "@/lib/api-client"
 
 import { quackKeys } from "@/features/quack/api/quackKeys"
-import { quackSchema, type Poll, type Quack } from "@/features/quack/api/quackSchemas"
+import { quackSchema, type Poll } from "@/features/quack/api/quackSchemas"
 
 export function PollCard({ quackId, poll }: { quackId: string; poll: Poll }) {
   const queryClient = useQueryClient()
   const vote = useMutation({
     mutationFn: async (optionId: string) =>
       quackSchema.parse(await api.put(`quacks/${quackId}/vote`, { json: { optionId } }).json()),
-    onSuccess: async (updated) => {
-      queryClient.setQueriesData<Quack[]>({ queryKey: quackKeys.all() }, (data) =>
-        data?.map((quack) => (quack.id === updated.id ? updated : quack)),
-      )
+    onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: quackKeys.all() })
     },
   })

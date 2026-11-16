@@ -12,9 +12,17 @@ import {
   IsString,
   MaxLength,
   MinLength,
+  ValidateIf,
 } from 'class-validator';
 
 export class CreateQuackDto {
+  @ApiPropertyOptional()
+  @ValidateIf((_object, value: unknown) => value !== undefined)
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(128)
+  parentId?: string;
+
   @ApiProperty({
     description: 'Body of the quack',
     example: 'Hello, world!',

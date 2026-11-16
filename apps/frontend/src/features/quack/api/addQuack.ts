@@ -4,6 +4,7 @@ import { quackSchema, type Quack, type QuackMood } from "@/features/quack/api/qu
 
 export async function addQuack(input: {
   text: string
+  parentId?: string
   mood?: QuackMood | null
   pollOptions?: string[]
 }): Promise<Quack> {

@@ -9,14 +9,17 @@ export type QuackAuthor = {
 
 export type Quack = {
   id: string;
-  text: string;
+  text: string | null;
   mood?: QuackMood | null;
   poll?: {
     options: { id: string; label: string; count: number | null }[];
     selectedOptionId: string | null;
     totalVotes: number | null;
   } | null;
-  userId: string;
+  userId: string | null;
+  parentId: string | null;
+  deletedAt: Date | null;
+  replyCount: number;
   createdAt: Date;
   updatedAt: Date;
   user?: QuackAuthor;
